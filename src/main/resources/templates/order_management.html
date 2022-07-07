@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="/css/styles.css">
+        <link rel="stylesheet" href="/fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="/css/order_management.css">
+    </head>
+    <body th:if="${session.USERTYPE == 0}">
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <div class="bao">
+                    <div class="trai">
+                        <ul>
+                            <li ><a href="/product-management">Quản lý sản phẩm</a></li>
+                            <!--<li ><a href="">Quản lý khuyến mãi</a></li>-->
+                            <li class="ql"><a href="/order-management">Quản lý đơn hàng</a></li>
+                        </ul>
+                    </div>
+                    <div class="phai">
+                        <div class="tieuDe"><p>Đơn hàng chưa xác nhận</p></div>
+                        <div class="bao" id="chuaXN">
+                        </div>
+                        <div class="tieuDe"><p>Đơn hàng đã xác nhận</p></div>
+                        <div class="bao" id="daXN">
+                        </div>
+                        <div class="tieuDe"><p>Đơn hàng đã nhận hàng</p></div>
+                        <div class="bao" id="daNhan">
+                        </div>
+                        <div class="tieuDe"><p>Đơn hàng bị huỷ</p></div>
+                        <div class="bao" id="daHuy">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+//            JS Trang 
+            function format(date) {
+                date = new Date(date);
+                var day = ('0' + date.getDate()).slice(-2);
+                var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
+            }
+            var h1 = '<table><thead><tr><th>Ngày đặt</th><th>Sản phẩm</th><th>Thông tin khách hàng</th><th>Ghi chú</th><th>Thành tiền</th><th>Thao tác</th></tr></thead><tbody>';
+            fetch('http://localhost:8080/order/1')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        var texts = data.map(od => {
+                            var s = '<tr><td>' + format(od.created) + '</td><td><ul>';
+                            var ss = od.orderDetails.map(odD => {
+                                return '<li><a href="http://localhost:8080/product/' + odD.productId + '">' + odD.productName + '  x' + odD.quantity + '</a></li>';
+                            })
+                            s += ss.join(' ');
+                            s += '</ul></td><td><ul><li>Họ và Tên: ' + od.customerName + '</li><li>Số điện thoại: ' + od.customerPhone + '</li><li>Địa chỉ: ' + od.customerAddress + '</li></ul></td>';
+                            s += '<td>' + ((od.message == null) ? "" : od.message) + '</td><td>' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(od.price) + '</td><td><button onclick="xacnhan(this)" value="' + od.id + '">Xác nhận</button><button onclick="huy(this)" value="' + od.id + '">Huỷ</button></td></tr>';
+                            return s;
+                        })
+                        text = texts.join(' ');
+                        h1 += text
+                        h1 += '</tbody></table>'
+                        if (text == "")
+                            h1 = "";
+                        document.getElementById('chuaXN').innerHTML = h1;
+                    })
+            var h2 = '<table><thead><tr><th>Ngày đặt</th><th>Sản phẩm</th><th>Thông tin khách hàng</th><th>Ghi chú</th><th>Thành tiền</th><th>Vận chuyển</th></tr></thead><tbody>';
+            fetch('http://localhost:8080/order/2')
+                    .then(response => response.json())
+                    .then(data => {
+                        var texts = data.map(od => {
+                            var s = '<tr><td>' + format(od.created) + '</td><td><ul>';
+                            var ss = od.orderDetails.map(odD => {
+                                return '<li><a href="http://localhost:8080/product/' + odD.productId + '">' + odD.productName + '  x' + odD.quantity + '</a></li>';
+                            })
+                            s += ss.join(' ');
+                            s += '</ul></td><td><ul><li>Họ và Tên: ' + od.customerName + '</li><li>Số điện thoại: ' + od.customerPhone + '</li><li>Địa chỉ: ' + od.customerAddress + '</li></ul></td>';
+                            s += '<td>' + ((od.message == null) ? "" : od.message) + '</td>';
+                            s += '<td>' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(od.price) + '</td><td>' + od.transport + '</td></tr>';
+                            return s;
+                        })
+                        text = texts.join(' ');
+                        h2 += text;
+                        h2 += '</tbody></table>'
+                        if (text == "")
+                            h2 = "";
+                        document.getElementById('daXN').innerHTML = h2;
+                    })
+            var h3 = '<table><thead><tr><th>Ngày đặt</th><th>Sản phẩm</th><th>Thông tin khách hàng</th><th>Ghi chú</th><th>Thành tiền</th><th>Vận chuyển</th><th>Trạng thái</th></tr></thead><tbody>';
+            fetch('http://localhost:8080/order/3')
+                    .then(response => response.json())
+                    .then(data => {
+                        var texts = data.map(od => {
+                            var s = '<tr><td>' + format(od.created) + '</td><td><ul>';
+                            var ss = od.orderDetails.map(odD => {
+                                return '<li><a href="http://localhost:8080/product/' + odD.productId + '">' + odD.productName + '  x' + odD.quantity + '</a></li>';
+                            })
+                            s += ss.join(' ');
+                            s += '</ul></td><td><ul><li>Họ và Tên: ' + od.customerName + '</li><li>Số điện thoại: ' + od.customerPhone + '</li><li>Địa chỉ: ' + od.customerAddress + '</li></ul></td>';
+                            s += '<td>' + ((od.message == null) ? "" : od.message) + '</td><td>' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(od.price) + '</td><td>' + od.transport + '</td><td>Đã nhận hàng</td></tr>';
+                            return s;
+                        })
+                        text = texts.join(' ');
+                        h3 += text;
+                        fetch('http://localhost:8080/order/4')
+                                .then(response => response.json())
+                                .then(data => {
+                                    var texts = data.map(od => {
+                                        var s = '<tr><td>' + format(od.created) + '</td><td><ul>';
+                                        var ss = od.orderDetails.map(odD => {
+                                            return '<li><a href="http://localhost:8080/product/' + odD.productId + '">' + odD.productName + '  x' + odD.quantity + '</a></li>';
+                                        })
+                                        s += ss.join(' ');
+                                        s += '</ul></td><td><ul><li>Họ và Tên: ' + od.customerName + '</li><li>Số điện thoại: ' + od.customerPhone + '</li><li>Địa chỉ: ' + od.customerAddress + '</li></ul></td>';
+                                        s += '<td>' + ((od.message == null) ? "" : od.message) + '</td><td>' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(od.price) + '</td><td>' + od.transport + '</td><td>Đã đánh giá</td></tr>';
+                                        return s;
+                                    })
+                                    console.log(h3);
+                                    text = texts.join(' ');
+                                    h3 += text
+                                    h3 += '</tbody></table>'
+                                    console.log(h3);
+                                    document.getElementById('daNhan').innerHTML = h3;
+                                })
+
+                    })
+            var h0 = '<table><thead><tr><th>Ngày đặt</th><th>Sản phẩm</th><th>Thông tin khách hàng</th><th>Ghi chú</th><th>Thành tiền</th></tr></thead><tbody>';
+            fetch('http://localhost:8080/order/0')
+                    .then(response => response.json())
+                    .then(data => {
+                        var texts = data.map(od => {
+                            var s = '<tr><td>' + format(od.created) + '</td><td><ul>';
+                            var ss = od.orderDetails.map(odD => {
+                                return '<li><a href="http://localhost:8080/product/' + odD.productId + '">' + odD.productName + '  x' + odD.quantity + '</a></li>';
+                            })
+                            s += ss.join(' ');
+                            s += '</ul></td><td><ul><li>Họ và Tên: ' + od.customerName + '</li><li>Số điện thoại: ' + od.customerPhone + '</li><li>Địa chỉ: ' + od.customerAddress + '</li></ul></td>';
+                            s += '<td>' + ((od.message == null) ? "" : od.message) + '</td>';
+                            s += '<td>' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(od.price) + '</td><td></td></tr>';
+                            return s;
+                        })
+                        text = texts.join(' ');
+                        h0 += text;
+                        h0 += '</tbody></table>'
+                        if (text == "")
+                            h0 = "";
+                        document.getElementById('daHuy').innerHTML = h0;
+                    })
+
+            function huy(btn) {
+                if (window.confirm("Bạn muốn huỷ đơn hàng này")) {
+                    fetch("http://localhost:8080/order/cancel/" + btn.value)
+                    window.location = "http://localhost:8080/order-management";
+                }
+            }
+
+            function xacnhan(btn) {
+                var tt = window.prompt("Đơn vị vận chuyển: ", "")
+                if (tt) {
+                    var vc = window.prompt("Mã vận đơn: ", "")
+                    if (vc) {
+                        console.log(tt + '   ' + vc)
+                        fetch("http://localhost:8080/order/update/" + btn.value + '/' + tt + '/' + vc);
+                        window.location = "http://localhost:8080/order-management";
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

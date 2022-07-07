@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="/css/styles.css">
+        <link rel="stylesheet" href="/fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="/css/payment.css">
+    </head>
+    <body th:if="${session.USERID}">
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <form action="/payment" method="post">
+                    <input type="hidden" name="type" id="type" th:value="${TYPE}">
+                    <div class="bao ">
+                        <div class="tieuDe">
+                            <p>Thông tin nhận hàng</p>
+                        </div>
+                        <div class="thongTinNH">
+                            <div>Họ và Tên </div><input type="text" name="name" id="name" th:value="${NAME}">
+                            <div>Số điện thoại </div><input type="number" name="phone" id="phone" th:value="${PHONE}">
+                            <div>Địa chỉ </div><input type="text" name="address" id="address" th:value="${ADDRESS}">
+                            <div>Ghi chú </div><input type="text" name="message" id="message">
+                        </div>
+                    </div>
+                    <div class="bao">
+                        <div class="tieuDe">
+                            <p>Thông tin sản phẩm</p>
+                        </div>
+                        <div class="danhSachSP" th:if="${TYPE == 0}">
+                            <input type="hidden" name="idP" id="idP" th:value="0">
+                            <table th:if="${session.CART != null && !session.CART.empty}">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Sản phẩm</th>
+                                        <th>Đơn giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="element: ${session.CART}">
+                                        <td style="width: 10%;"><img th:src="${element.value.getProduct().getImage()}" alt="Ảnh sản phẩm"></td>
+                                        <td th:text="${element.value.getProduct().getName()}"></td>
+                                        <td th:text="${#numbers.formatDecimal(element.value.getProduct().getPrice(), 3, 'POINT', 0, 'COMMA') + '₫'}"></td>
+                                        <td class='SL'>
+                                            <div class="soLuong" th:text="${element.value.getQuantity()}"></div>
+                                        </td>
+                                        <td th:text="${#numbers.formatDecimal(element.value.getPrice(), 3, 'POINT', 0, 'COMMA') + '₫'}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="tieuDe"> </div>
+                            <div id="tongTien" th:text="${'Tổng tiền: ' + #numbers.formatDecimal(session.PRICE, 3, 'POINT', 0, 'COMMA') + '₫'}">Tổng tiền: 31.290.000₫</div>
+                            <button>Đặt hàng</button>
+                        </div>
+                        <div class="danhSachSP" th:if="${TYPE == 1}">
+                            <table th:object="${PRODUCTS}">
+                                <input type="hidden" name="idP" id="idP" th:value="*{id}">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Sản phẩm</th>
+                                        <th>Đơn giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 10%;"><img th:src="*{image}" alt="Ảnh sản phẩm"></td>
+                                        <td th:text="*{name}"></td>
+                                        <td th:text="*{#numbers.formatDecimal(price, 3, 'POINT', 0, 'COMMA') + '₫'}"></td>
+                                        <td class='SL'>
+                                            <div class="soLuong" th:text="1"></div>
+                                        </td>
+                                        <td th:text="*{#numbers.formatDecimal(price, 3, 'POINT', 0, 'COMMA') + '₫'}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="tieuDe"> </div>
+                            <div id="tongTien" th:text="${'Tổng tiền: ' + #numbers.formatDecimal(PRODUCTS.price, 3, 'POINT', 0, 'COMMA') + '₫'}">Tổng tiền: 31.290.000₫</div>
+                            <button>Đặt hàng</button>
+                        </div>
+                    </div>
+                    <!--                    <div class="bao">
+                                            <div class="tieuDe"> </div>
+                                            <div id="tongTien" th:text="${'Tổng tiền: ' + #numbers.formatDecimal(session.PRICE, 3, 'POINT', 0, 'COMMA') + '₫'}">Tổng tiền: 31.290.000₫</div>
+                                            <button>Đặt hàng</button>
+                                        </div>-->
+                </form>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+//            JS Trang 
+
+        </script>
+    </body>
+</html>

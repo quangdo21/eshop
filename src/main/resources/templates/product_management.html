@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="/css/styles.css">
+        <link rel="stylesheet" href="/fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="/css/product_management.css">
+    </head>
+    <body th:if="${session.USERTYPE == 0}">
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <div class="bao">
+                    <div class="trai">
+                        <ul>
+                            <li class="ql"><a href="/product-management">Quản lý sản phẩm</a></li>
+                            <!--<li><a href="">Quản lý khuyến mãi</a></li>-->
+                            <li><a href="/order-management">Quản lý đơn hàng</a></li>
+                        </ul>
+                    </div>
+                    <div class="phai">
+                        <div class="tieuDe">
+                            <p>Quản lý sản phẩm</p>
+                        </div>
+                        <div class="dau">
+                            <div class="them">
+                                <button onclick="window.location = '/product-management/add'">Thêm sản phẩm</button>
+                            </div>
+                            <div class="tim">
+                                <input type="text" name="search" id="search">
+                                <button onclick="timSP()">Tìm kiếm</button>
+                            </div>
+                        </div>
+                        <table border="1" th:if="${LISTP != null}">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ngày đăng</th>
+                                    <th>Hình ảnh sản phẩm</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Loại sản phẩm</th>
+                                    <th>Đơn giá</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="product: ${LISTP}">
+                                    <td th:text="${product.id}">1</td>
+                                    <td th:text="${#dates.format(product.created, 'dd/MM/yyyy')}">10/05/2022</td>
+                                    <td style="width: 10%;"><img th:src="${product.image}" alt="Ảnh sản phẩm"></td>
+                                    <td th:text="${product.name}">Điện thoại Vivo Y15s</td>
+                                    <td th:text="${(product.catalog == 1)?'Điện thoại':(product.catalog == 2)?'Tablet':(product.catalog == 3)?'LapTop':'Phụ kiện'}">Điện thoại</td>
+                                    <td th:text="${#numbers.formatDecimal(product.price,3,'POINT',0,'COMMA')} + '₫'">3.490.000₫</td>
+                                    <td>
+                                        <a th:href="@{'/product-management/update/' + ${product.id}}">Sửa</a>
+                                        <a th:href="@{'/product-management/delete/' + ${product.id}}">Xoá</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+//            JS Trang 
+            function timSP(){
+                var message = document.getElementById('search').value;
+                window.location = 'http://localhost:8080/product-management/' + message;
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,114 @@
+.noiDung{
+    height: auto;
+}
+/*.noiDung .trai{
+    width: 20%;
+    border-right: 0.5px solid rgba(0,0,0,0.5);
+    float: left;
+    height: 100%;
+}
+
+.noiDung .trai ul{
+    list-style: none;
+    width: 100%;
+}
+
+.noiDung .trai li{
+    margin: 0px;
+    padding: 10px;
+    width: 100%;
+}
+
+.noiDung .trai li a{
+    font-size: 18px;
+    padding: 4px;
+}
+
+.noiDung .trai li a:hover{
+    font-weight: bold;
+}
+
+.noiDung .trai .ttdh{
+    background-color: rgba(0,0,0,0.5);
+    width: 80%;
+}*/
+
+.noiDung .trai{
+    width: 20%;
+    border-right: 0.5px solid rgba(0,0,0,0.5);
+    float: left;
+    height: auto;
+}
+
+.noiDung .trai ul{
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.noiDung .trai li{
+    margin: 0px;
+    padding: 5%;
+}
+
+.noiDung .trai li a{
+    font-size: 18px;
+}
+
+.noiDung .trai li a:hover{
+    font-weight: bold;
+}
+
+.noiDung .trai .ttdh{
+    background-color: rgba(0,0,0,0.5);
+    width: 90%;
+}
+
+.noiDung .phai{
+    border-left: 0.5px solid rgba(0,0,0,0.5);
+    width: 76%;
+    float: left;
+    height: 100%;
+    padding-left: 20px;
+}
+
+.noiDung .phai .tieuDe{
+    margin-top: 8px; 
+    font-size: 18px;
+    font-weight: bold;
+    width: 98%;
+    padding: 4px 4px 0px 10px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.5);
+    background-color: rgba(255, 200, 36,0.9);
+}
+
+.noiDung .phai .donhang table{
+    width: 100%;
+    margin: 8px 0;
+    text-align: left;
+}
+.noiDung .phai .donhang table th,
+.noiDung .phai .donhang table td{
+    margin: 4px;
+}
+
+table, th, td{
+    border-collapse:collapse;
+    border-bottom:1px solid rgba(255, 200, 36,0.5);
+}
+
+.noiDung .phai button{
+    width: 90%;
+    padding: 8px;
+    border: 1px solid rgba(255, 200, 36,0.9);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: rgba(255, 200, 36,0.9);
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.noiDung .phai button:hover{
+    background-color: rgba(255, 200, 36,0.9);
+    color: rgba(0, 0, 0, 0.7);
+}

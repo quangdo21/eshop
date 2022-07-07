@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="css/home.css">
+    </head>
+    <body>
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <h3 th:text="${LOGINSUCCESS}"></h3>
+                <div class="bao">
+                    <div class="tieuDe"><p>Sản phẩm mới</p></div>
+                    <div id="product">
+                    </div>
+                </div>
+                <div class="bao">
+                    <div class="tieuDe"><p>Điện thoại</p></div>
+                    <div id="phone">
+                    </div>
+                    <div class="xemthem">
+                        <a href="/products/catalog/1"><button>Xem thêm</button></a>
+                    </div>
+                </div>
+                <div class="bao">
+                    <div class="tieuDe"><p>Tablet</p></div>
+                    <div id="tablet">
+                    </div>
+                    <div class="xemthem">
+                        <a href="/products/catalog/2"><button>Xem thêm</button></a>
+                    </div>
+                </div>
+                <div class="bao">
+                    <div class="tieuDe"><p>Laptop</p></div>
+                    <div id="laptop">
+                    </div>
+                    <div class="xemthem">
+                        <a href="/products/catalog/3"><button>Xem thêm</button></a>
+                    </div>
+                </div>
+                <div class="bao">
+                    <div class="tieuDe"><p>Phụ kiện</p></div>
+                    <div id="accessories">
+                    </div>
+                    <div class="xemthem">
+                        <a href="/products/catalog/4"><button>Xem thêm</button></a>
+                    </div>
+                </div>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+//            JS Trang Home
+            fetch('http://localhost:8080/products/top6pnew')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<div class="sanPham"><a href="http://localhost:8080/product/' + d.id + '"><img src="' + d.image + '" alt=""> <div class="ten">' + d.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(d.price) + '</div></a></div>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('product').innerHTML = html
+                    })
+
+            fetch('http://localhost:8080/products/top6phone')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<div class="sanPham"><a href="http://localhost:8080/product/' + d.id + '"><img src="' + d.image + '" alt=""> <div class="ten">' + d.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(d.price) + '</div></a></div>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('phone').innerHTML = html
+                    })
+            fetch('http://localhost:8080/products/top6tablet')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<div class="sanPham"><a href="http://localhost:8080/product/' + d.id + '"><img src="' + d.image + '" alt=""> <div class="ten">' + d.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(d.price) + '</div></a></div>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('tablet').innerHTML = html
+                    })
+            fetch('http://localhost:8080/products/top6laptop')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<div class="sanPham"><a href="http://localhost:8080/product/' + d.id + '"><img src="' + d.image + '" alt=""> <div class="ten">' + d.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(d.price) + '</div></a></div>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('laptop').innerHTML = html
+                    })
+            fetch('http://localhost:8080/products/top6accessories')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<div class="sanPham"><a href="http://localhost:8080/product/' + d.id + '"><img src="' + d.image + '" alt=""> <div class="ten">' + d.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(d.price) + '</div></a></div>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('accessories').innerHTML = html
+                    })
+
+        </script>
+    </body>
+</html>

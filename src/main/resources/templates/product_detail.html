@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="/css/styles.css">
+        <link rel="stylesheet" href="/fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="/css/product_detail.css">
+    </head>
+    <body>
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <input type="hidden" id="giaTri" th:value="${session.USERID}" >
+                <div class="sanPham" id="SP">
+                    <!--                    <div class="trai">
+                                            <img src="https://cdn.tgdd.vn/Products/Images/42/153856/iphone-xi-do-600x600.jpg" alt="">
+                                        </div>
+                                        <div class="phai">
+                                            <div class="ten">IPhone 11</div>
+                                            <div class="gia">13.790.000.000đ</div>
+                                            <button onclick="addTocart()">Thêm vào giỏ hàng</button>
+                                            <button>Mua ngay</button>
+                                        </div>
+                                        <div class="chiTiet">
+                                            <p>&emsp;Mô tả</p>
+                                        </div>-->
+                </div>
+                <div class="danhGia">
+                    <h3>
+                        <div class="diem" >Đánh giá: <i class="ti-star" th:text="${POINT + '/5'}"></i></div>
+                    </h3>
+                    <div id="dG" th:if="${!RATE.isEmpty()}" th:each="rate: ${RATE}">
+                        <div class="chiTiet">
+                            <div class="nguoi"><i class="ti-user"></i><strong th:text="' '+${rate.username}"></strong></div>
+                            <div class="diem" th:text="'Điểm: '+${rate.point}"></div>
+                            <div class="message" th:text="'Đánh giá: '+${rate.message}">Sản phẩm tốt chất lượng cao</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+//            JS Trang
+            var url = location.href.split('/');
+            var index = url[url.length - 1];
+            fetch('http://localhost:8080/products/product?id=' + index)
+                    .then(response => response.json())
+                    .then(data => {
+                        var info = '<div class="trai"><img src="' + data.image + '" alt=""></div>';
+                        info += '<div class="phai"><div class="ten">' + data.name + '</div><div class="gia">' + new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'VND'}).format(data.price) + '</div><button onclick="addToCart()">Thêm vào giỏ hàng</button><button onclick="pay()">Mua ngay</button></div>';
+                        info += '<div class="chiTiet"><p>&emsp;&emsp;&emsp;&emsp;' + data.descreptions + '</p></div>';
+                        document.getElementById('SP').innerHTML = info;
+                    })
+
+            function addToCart() {
+                if (document.getElementById("giaTri").value != "")
+                    window.location.assign('http://localhost:8080/cart/' + index);
+                else
+                    window.location.assign('http://localhost:8080/login');
+//                window.alert("Thêm vào giỏ hàng thành công");
+//                window.location.reload();
+            }
+            function pay() {
+                if (document.getElementById("giaTri").value != "")
+                    window.location.assign('http://localhost:8080/payment/' + index);
+                else
+                    window.location.assign('http://localhost:8080/login');
+            }
+        </script>
+    </body>
+</html>

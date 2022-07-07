@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EShop - Shop điện tử hàng đầu Việt Nam</title>
+        <link rel="stylesheet" href="/css/styles.css">
+        <link rel="stylesheet" href="/fonts/themify-icons/themify-icons.css">
+        <link rel="stylesheet" href="/css/sign_up.css">
+    </head>
+    <body>
+        <div class="lopBao">
+            <div class="dauTrang">
+                <div class="logo">
+                    <div class="chu">
+                        <a href="/">ESHOP</a>
+                    </div>
+                </div>
+                <div class="menu">
+                    <div class="taiKhoan">
+                        <i class="ti-user"></i>
+                        <ul>
+                            <div th:if="${session.USERID == null}">
+                                <li><a href="/login">Đăng nhập</a></li>
+                                <li><a href="/sign-up">Đăng ký</a></li>
+                            </div>
+                            <div th:if="${session.USERID}">
+                                <li><a href="/info-user">Tài khoản</a></li>
+                                <li><a href="/cart">Giỏ hàng</a></li>
+                                <li><a href="/logout">Đăng xuất</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="timKiem">
+                        <i class="ti-search"></i>
+                        <div class="thanhTim">
+                            <input type="text" id="inpSearch" placeholder="Tìm kiếm" onkeydown="search()">
+                            <a onclick="timkiem()" style="cursor:pointer"><i class="ti-search"></i></a>
+                        </div>
+                    </div>
+                    <ul id="thanhMenu">
+                        <li><a href="/">Trang chủ</a></li>
+                        <li th:if="${session.USERTYPE == 0}"><a href="/product-management">Quản lý</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="noiDung">
+                <div class="bao">
+                    <h1>Đăng Ký</h1>
+                    <p th:text="${SIGNUPFAIL}" class="error"></p>
+                    <form action="/sign-up" method="post" id="formDangKy" >
+                        <div class="tieuDe">Thông tin cá nhân</div>
+                        <p>Họ và Tên</p>
+                        <input type="text" name="name" id="name" placeholder="Nhập Họ và Tên" >
+                        <p>Ngày sinh</p>
+                        <input type="date" name="birth" id="birth" >
+                        <p>Giới tính</p>
+                        <input type="radio" id="gender" name="gender" value="1" checked="checked">Nam
+                        <input type="radio" id="gender" name="gender" value="0">Nữ
+                        <p>Số điện thoại</p>
+                        <input type="number" id="phone" name="phone" placeholder="Nhập số điện thoại" >
+                        <p>Email</p>
+                        <input type="email" name="email" id="email" placeholder="Nhập email" >
+                        <p>Địa chỉ</p>
+                        <input type="text" name="address" id="address" placeholder="Nhập địa chỉ" >
+                        <div class="tieuDe">Thông tin tài khoản</div>
+                        <p>Tên đăng nhập</p>
+                        <input type="text" name="username" id="username" placeholder="Nhập tên đăng nhập">
+                        <p>Mật khẩu</p>
+                        <input type="password" name="password" id="password" placeholder="Nhập mật khẩu">
+                        <p>Nhập lại mật khẩu</p>
+                        <input type="password" name="re_password" id="re_password" placeholder="Nhập lại mật khẩu">
+                        <input type="button" value="Đăng ký" id="btnDangKy" onclick="dangky()">
+                    </form>
+                </div>
+            </div>
+            <div class="cuoiTrang">
+                <a href="/">ESHOP</a>
+                <h3>Shop điện tử hàng đầu Việt Nam</h3>
+                <a href=""><i class="ti-email"></i></a>
+                <a href=""><i class="ti-facebook"></i></a>
+                <a href=""><i class="ti-youtube"></i></a>
+                <a href=""><i class="ti-twitter-alt"></i></a>
+            </div>
+        </div>
+        <script>
+//            JS chung
+            fetch('http://localhost:8080/catalog')
+                    .then(response => response.json())
+                    .then(data => {
+                        var htmls = data.map(function (d) {
+                            return '<li><a href="/products/catalog/' + d.id + '">' + d.name + '</a></li>';
+                        })
+                        html = htmls.join(' ');
+                        document.getElementById('thanhMenu').innerHTML += html
+                    })
+            function timkiem() {
+                var input = document.getElementById('inpSearch').value;
+                if (input)
+                    window.location = 'http://localhost:8080/products/search/' + input;
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+            function search() {
+                if (event.keyCode == 13) {
+                    timkiem();
+                }
+            }
+
+//            JS riêng
+            function dangky() {
+                var name = document.getElementById("name").value;
+                var birth = document.getElementById("birth").value;
+                var gender = document.getElementById("gender").value;
+                var phone = document.getElementById("phone").value;
+                var email = document.getElementById("email").value;
+                var address = document.getElementById("address").value;
+                var username = document.getElementById("username").value;
+                var password = document.getElementById("password").value;
+                var re_password = document.getElementById("re_password").value;
+                if(name == '' || birth == '' ||gender == '' || phone == '' || email == '' || address == '' || username == '' || password == '' || re_password == '')
+                    window.alert("Vui lòng nhập đủ tất cả các trường dữ liệu");
+                else if(password != re_password)
+                    window.alert("Mật khẩu không trùng khớp");
+                else{
+                    document.getElementById('formDangKy').submit();
+                }
+            }
+        </script>
+    </body>
+</html>
